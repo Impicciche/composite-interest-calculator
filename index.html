@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interesse Composto</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+</head>
+<body>
+    <div class="container">
+        <form action="" id="formInteresse">
+            <div class="form-row">
+                <div class="form-group col-md-6"><label for="capitaleIniziale">Capitale Iniziale</label><input class="form-control" type="number" name="capIniziale" id="capIniziale" placeholder="Capitale Iniziale"></div>
+                <div class="form-group col-md-6"><label for="aggiunteMensili">Aggiunte Mensili</label><input class="form-control"  type="number" name="aggiunteMensili" id="aggiunteMensili" placeholder="Aggiunte Mensili"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6"><label for="anni">Anni</label><input class="form-control" type="number" name="anni" id="anni" placeholder="Anni"></div>
+                <div class="form-group col-md-6"><label for="interesse">Interesse</label><input class="form-control" type="text" name="interesse" id="interesse" placeholder="Interesse" pattern="[\d]+(\.[\d]+)?"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <input class="form-control" type="submit" value="Calcola">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="totaleInv">Totale Investito</label>
+                    <input type="text" name="totaleInv" id="totaleInv" class="form-control" placeholder="Totale Investito" disabled>
+                </div>
+                <div class="form-group col-md-6">
+                     <label for="totaleInv">Totale con Interesse</label>
+                    <input type="text" name="totaleRicap" id="totaleRicap" class="form-control" placeholder="Totale con Interesse" disabled>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                     <label for="totaleInv">Differenza Capitale Investito-Interessi</label>
+                    <input type="text" name="diffCapitale" id="diffCapitale" class="form-control" placeholder="Differenza Capitale Investito-Interessi" disabled>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener("DOMContentLoaded",function(){
+        let form = document.getElementById("formInteresse");
+        console.log(form);
+
+
+        form.addEventListener("submit",function(e){
+            e.preventDefault();
+            let errors = document.getElementsByClassName("error");
+
+            console.log(errors);
+            
+            for(let i = 0; i<errors.length; i++){
+                errors[i].remove();
+            }
+
+            if(!validation()){
+                return false;
+            }
+
+            let investimentoIniziale = parseFloat( document.getElementById("capIniziale").value);
+            let investimentoMensile = parseFloat( document.getElementById("aggiunteMensili").value);
+            let anni = parseFloat( document.getElementById("anni").value);
+            let interesseMedio = parseFloat( document.getElementById("interesse").value);
+            interesseMedio = 1 + interesseMedio/100;
+
+            let totaleInvestimento = calcoloInteresse(investimentoIniziale+12*investimentoMensile,anni,interesseMedio,investimentoMensile);
+            let totaleInvestito = investimentoIniziale + investimentoMensile * 12 * anni;
+
+            let totaleRicap = Math.round(totaleInvestimento*100)/100;
+            document.getElementById("totaleInv").value=totaleInvestito; 
+            document.getElementById("totaleRicap").value = totaleRicap; 
+            document.getElementById("diffCapitale").value = totaleRicap-totaleInvestito; 
+
+        });
+
+        function calcoloInteresse(capitale, anni,interesseMedio,ammontareMensile){
+            if(anni<=1){
+                return capitale * interesseMedio;
+            }
+            
+            return calcoloInteresse((capitale*interesseMedio+ammontareMensile*12),anni-1,interesseMedio,ammontareMensile);
+        }
+        function validation(){
+            let inputs = document.querySelectorAll("input[type=number],#interesse");
+
+            for(let i =0; i<inputs.length;i++){
+                if(!parseFloat(inputs[i].value)){
+                    let error = document.createElement("div");
+                    error.classList="error";
+                    let messageError = inputs[i].parentNode.querySelector("label").textContent;
+
+                    messageError += " deve essere un numero";
+                    error.textContent = messageError;
+
+                    inputs[i].parentNode.appendChild(error)
+                    return false;
+                }
+            }
+            return true;
+        }
+    });
+</script>
+</body>
+</html>
